@@ -24,9 +24,9 @@ BOARDROWS = 10
 BOXSIZE = 40
 GAP = 1
 FPS = 30
-ICON = "./mine.png"
-BOMB = "./bomb.png"
-SOUND = "./bomb.ogg"
+ICON = "/home/saket/Codes/Python/MineSweeper/mine.png"
+BOMB = "/home/saket/Codes/Python/MineSweeper/bomb.png"
+SOUND = "/home/saket/Codes/Python/MineSweeper/bomb.ogg"
 FONTSIZE = 20
 RUNNING = True
 XMARGIN = int((WINDOWWIDTH - (BOARDCOLUMNS * BOXSIZE)) / 2)
@@ -95,6 +95,9 @@ def main():
 	#FpsClockObject
 	FPSCLOCKOBJECT = pygame.time.Clock()
 
+	#To Get Best Time
+	BestTime = HighestScoreRead()
+
 	#Used to Store x and y coordinates of mouse event
 	mousex = 0 
 	mousey = 0 
@@ -121,6 +124,21 @@ def main():
 		textsurfobj = FONTOBJECT.render(str(NO_FLAGS), True, BLACK)
 		textrectobj = textsurfobj.get_rect()
 		textrectobj.center = (XMARGIN + 35, 35)
+		DISPLAYSURF.blit(textsurfobj, textrectobj)
+
+		#To Draw Best Time Box
+		pygame.draw.rect(DISPLAYSURF, WHITE, (XMARGIN + 10, YMARGIN + 440, 80, 40))
+		textsurfobj = FONTOBJECT.render("Best:", True, BLACK)
+		textrectobj = textsurfobj.get_rect()
+		textrectobj.center = (XMARGIN - 20, YMARGIN + 460)#XMARGIN + 199
+		DISPLAYSURF.blit(textsurfobj, textrectobj)
+		textsurfobj = FONTOBJECT.render("s", True, BLACK)
+		textrectobj = textsurfobj.get_rect()
+		textrectobj.center = (XMARGIN + 98, YMARGIN + 460)#XMARGIN + 199
+		DISPLAYSURF.blit(textsurfobj, textrectobj)
+		textsurfobj = FONTOBJECT.render(BestTime, True, BLACK)
+		textrectobj = textsurfobj.get_rect()
+		textrectobj.center = (XMARGIN + 49, YMARGIN + 460)#XMARGIN + 199
 		DISPLAYSURF.blit(textsurfobj, textrectobj)
 
 		#Drawing the Board
@@ -274,6 +292,39 @@ def DrawFlag(board, boxx, boxy):
 	pygame.draw.line(DISPLAYSURF, BLACK, (left + 23, top + 10), (left + 23, top + 30), 2)
 
 
+#To Read HighestScore from a file
+def HighestScoreRead():
+	output = ".highestscore"
+	try:
+		ReadFile = open(output)
+	except:
+		WriteFile = open(output, 'w')
+		WriteFile.write("99999")
+		return "99999"
+	lines = ReadFile.readlines()
+	hscore = lines[0][:len(lines[0])]
+	return hscore
+
+
+#To Write HighestScore into a file
+def HighestScoreWrite():
+	output = ".highestscore"
+	try:
+		ReadFile = open(output)
+	except:
+		WriteFile = open(output, 'w')
+		BestTime = str(TIME) + '\n'
+		WriteFile.write(BestTime)
+		return		
+	lines = ReadFile.readlines()
+	hscore = lines[0][:len(lines[0])]
+	if(hscore == '99999' or float(hscore) > float(TIME)):
+		WriteFile = open(output, 'w')
+		BestTime = str(float(TIME))
+
+		WriteFile.write(TIME)
+
+
 #Return the MainBoard
 def DrawMainBoard(board):
 	for i in range(1, BOARDCOLUMNS + 1):
@@ -369,6 +420,15 @@ def GameOverWin(board, Flag):
 			if RectBox.collidepoint(mousex, mousey):
 				main()
 	else:
+		#To Draw Best Score
+		HighestScoreWrite()
+		BestTime = HighestScoreRead()
+		pygame.draw.rect(DISPLAYSURF, WHITE, (XMARGIN + 5, YMARGIN + 440, 81, 40))
+		textsurfobj = FONTOBJECT.render(BestTime, True, BLACK)
+		textrectobj = textsurfobj.get_rect()
+		textrectobj.center = (XMARGIN + 49, YMARGIN + 460)#XMARGIN + 199
+		DISPLAYSURF.blit(textsurfobj, textrectobj)
+		
 		DrawMainBoard(board)
 		top, left = GetTopLeftOfBox(4, 5)
 		l = left
